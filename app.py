@@ -67,6 +67,70 @@ def get_region(state):
     else:
         return "West"
 
+# Tutorial content function
+def create_tutorial_content():
+    """Create tutorial content for modal dialog"""
+    return ui.div(
+        {"class": "tutorial-content"},
+        ui.navset_card_tab(
+            ui.nav_panel(
+                "Step 1",
+                ui.div(
+                    ui.h4("Getting Started"),
+                    ui.p("Select the states and year you're interested in exploring:"),
+                    ui.tags.ul(
+                        ui.tags.li("Use the search box to quickly find specific states"),
+                        ui.tags.li("Select multiple states for comparison"),
+                        ui.tags.li("Use the 'Select All States' button to quickly select or deselect all states"),
+                        ui.tags.li("Choose a year from the dropdown to view data for that time period")
+                    )
+                )
+            ),
+            ui.nav_panel(
+                "Step 2", 
+                ui.div(
+                    ui.h4("Choose Health Indicators"),
+                    ui.p("Select a health metric to visualize:"),
+                    ui.tags.ul(
+                        ui.tags.li("Obesity Rate - Shows the percentage of adults with obesity"),
+                        ui.tags.li("Smoking Rate - Shows the percentage of adults who smoke"),
+                        ui.tags.li("Physically Unhealthy Days - Average days of poor physical health"),
+                        ui.tags.li("Mentally Unhealthy Days - Average days of poor mental health")
+                    ),
+                    ui.p("The selected indicator will be displayed in all visualizations and the data table.")
+                )
+            ),
+            ui.nav_panel(
+                "Step 3",
+                ui.div(
+                    ui.h4("Exploring Visualizations"),
+                    ui.p("Analyze data using different visualization types:"),
+                    ui.tags.ul(
+                        ui.tags.li("Bar Chart: Compare values across states for the selected year"),
+                        ui.tags.li("Trend Line Chart: View how indicators change over time for each state"),
+                        ui.tags.li("Data Table: Explore detailed data with options to customize columns")
+                    ),
+                    ui.p("Hover over charts for more details, or expand them to full screen using the icon in the top-right corner.")
+                )
+            ),
+            ui.nav_panel(
+                "Step 4",
+                ui.div(
+                    ui.h4("Accessibility Features"),
+                    ui.p("Customize the interface to suit your needs:"),
+                    ui.tags.ul(
+                        ui.tags.li("Dark Mode: Toggle between light and dark themes"),
+                        ui.tags.li("Theme Picker: Choose from various theme options"),
+                        ui.tags.li("Zoom Control: Adjust the interface size for better visibility"),
+                        ui.tags.li("Keyboard Navigation: Use Tab, arrow keys, and Enter to navigate without a mouse")
+                    ),
+                    ui.p("All visualizations are accessible with keyboard navigation and screen readers.")
+                )
+            ),
+            id="tutorial_tabs"
+        )
+    )
+
 # UI definition
 app_ui = ui.page_fluid(
     # Add custom JavaScript for zoom functionality
@@ -97,13 +161,19 @@ app_ui = ui.page_fluid(
         """)
     ),
     
-    # Control bar with theme picker, dark mode, and zoom
+    # Control bar with theme picker, dark mode, tutorial, and zoom
     ui.div(
         {"class": "d-flex justify-content-between align-items-center p-2 border-bottom"},
         ui.div(
             {"class": "d-flex align-items-center gap-3"},
             shinyswatch.theme_picker_ui(),
-            ui.input_dark_mode()
+            ui.input_dark_mode(),
+            ui.input_action_button(
+                "tutorial_btn", 
+                "Tutorial",
+                class_="btn btn-outline-info btn-sm",
+                icon=ui.tags.i(class_="fas fa-question-circle")
+            )
         ),
         ui.div(
             {"class": "d-flex align-items-center gap-2"},
@@ -259,6 +329,141 @@ app_ui = ui.page_fluid(
 def server(input, output, session):
     # Initialize theme picker
     shinyswatch.theme_picker_server()
+    
+    # Tutorial step management
+    tutorial_step = reactive.value(0)
+    
+    # Show tutorial modal
+    @reactive.effect
+    @reactive.event(input.tutorial_btn)
+    def show_tutorial():
+        tutorial_step.set(0)
+        
+        # Create modal content with navigation
+        modal_content = ui.modal(
+            ui.div(
+                {"class": "tutorial-content"},
+                ui.navset_card_tab(
+                    ui.nav_panel(
+                        "Step 1",
+                        ui.div(
+                            ui.h4("Getting Started"),
+                            ui.p("Select the states and year you're interested in exploring:"),
+                            ui.tags.ul(
+                                ui.tags.li("Use the search box to quickly find specific states"),
+                                ui.tags.li("Select multiple states for comparison"),
+                                ui.tags.li("Use the 'Select All States' button to quickly select or deselect all states"),
+                                ui.tags.li("Choose a year from the dropdown to view data for that time period")
+                            )
+                        )
+                    ),
+                    ui.nav_panel(
+                        "Step 2", 
+                        ui.div(
+                            ui.h4("Choose Health Indicators"),
+                            ui.p("Select a health metric to visualize:"),
+                            ui.tags.ul(
+                                ui.tags.li("Obesity Rate - Shows the percentage of adults with obesity"),
+                                ui.tags.li("Smoking Rate - Shows the percentage of adults who smoke"),
+                                ui.tags.li("Physically Unhealthy Days - Average days of poor physical health"),
+                                ui.tags.li("Mentally Unhealthy Days - Average days of poor mental health")
+                            ),
+                            ui.p("The selected indicator will be displayed in all visualizations and the data table.")
+                        )
+                    ),
+                    ui.nav_panel(
+                        "Step 3",
+                        ui.div(
+                            ui.h4("Exploring Visualizations"),
+                            ui.p("Analyze data using different visualization types:"),
+                            ui.tags.ul(
+                                ui.tags.li("Bar Chart: Compare values across states for the selected year"),
+                                ui.tags.li("Trend Line Chart: View how indicators change over time for each state"),
+                                ui.tags.li("Data Table: Explore detailed data with options to customize columns")
+                            ),
+                            ui.p("Hover over charts for more details, or expand them to full screen using the icon in the top-right corner.")
+                        )
+                    ),
+                    ui.nav_panel(
+                        "Step 4",
+                        ui.div(
+                            ui.h4("Accessibility Features"),
+                            ui.p("Customize the interface to suit your needs:"),
+                            ui.tags.ul(
+                                ui.tags.li("Dark Mode: Toggle between light and dark themes"),
+                                ui.tags.li("Theme Picker: Choose from various theme options"),
+                                ui.tags.li("Zoom Control: Adjust the interface size for better visibility"),
+                                ui.tags.li("Keyboard Navigation: Use Tab, arrow keys, and Enter to navigate without a mouse")
+                            ),
+                            ui.p("All visualizations are accessible with keyboard navigation and screen readers.")
+                        )
+                    ),
+                    id="tutorial_tabs"
+                )
+            ),
+            title="Tutorial - Health Data Dashboard",
+            size="l",
+            easy_close=True,
+            footer=ui.div(
+                {"class": "d-flex justify-content-between w-100"},
+                ui.input_action_button(
+                    "prev_step", 
+                    "Previous",
+                    class_="btn btn-secondary"
+                ),
+                ui.input_action_button(
+                    "next_step", 
+                    "Next", 
+                    class_="btn btn-primary"
+                ),
+                ui.input_action_button(
+                    "close_tutorial", 
+                    "Finish",
+                    class_="btn btn-success",
+                    **{"data-bs-dismiss": "modal"}
+                )
+            )
+        )
+        
+        ui.modal_show(modal_content)
+        
+        # Initialize button states
+        ui.update_action_button("prev_step", disabled=True)  # Start at step 1, so Previous disabled
+        ui.update_action_button("next_step", disabled=False)
+    
+    # Handle tutorial navigation
+    @reactive.effect
+    @reactive.event(input.next_step)
+    def next_tutorial_step():
+        current_step = tutorial_step.get()
+        if current_step < 3:  # 0-3 for 4 steps
+            new_step = current_step + 1
+            tutorial_step.set(new_step)
+            # Update the active tab
+            step_names = ["Step 1", "Step 2", "Step 3", "Step 4"]
+            ui.update_navs("tutorial_tabs", selected=step_names[new_step])
+            # Update button states
+            ui.update_action_button("prev_step", disabled=(new_step == 0))
+            ui.update_action_button("next_step", disabled=(new_step == 3))
+    
+    @reactive.effect
+    @reactive.event(input.prev_step)
+    def prev_tutorial_step():
+        current_step = tutorial_step.get()
+        if current_step > 0:
+            new_step = current_step - 1
+            tutorial_step.set(new_step)
+            # Update the active tab
+            step_names = ["Step 1", "Step 2", "Step 3", "Step 4"]
+            ui.update_navs("tutorial_tabs", selected=step_names[new_step])
+            # Update button states
+            ui.update_action_button("prev_step", disabled=(new_step == 0))
+            ui.update_action_button("next_step", disabled=(new_step == 3))
+    
+    @reactive.effect
+    @reactive.event(input.close_tutorial)
+    def close_tutorial():
+        ui.modal_remove()
     
     # Handle zoom changes
     @reactive.effect
