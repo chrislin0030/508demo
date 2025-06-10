@@ -182,11 +182,11 @@ app_ui = ui.page_fluid(
                 "zoom_slider",
                 label=None,
                 min=50,
-                max=150,
+                max=400,
                 value=100,
-                step=10,
+                step=50,
                 post="%",
-                width="150px"
+                width="200px"
             ),
             ui.tags.span("100%", id="zoom_display", class_="badge bg-secondary")
         )
